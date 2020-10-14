@@ -51,8 +51,8 @@ func TestGet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Get(tt.n); got != tt.want {
-				t.Errorf("call Get(%d) = %d, want %d", tt.n, got, tt.want)
+			if got := Num(tt.n); got != tt.want {
+				t.Errorf("call Num(%d) = %d, want %d", tt.n, got, tt.want)
 			}
 		})
 	}

@@ -10,14 +10,12 @@ import (
 const maxFibNumber = 20
 
 func main() {
-	var number int
-
-	flag.IntVar(&number, "n", maxFibNumber, "fibonacci number")
+	number := flag.Int("n", maxFibNumber, "fibonacci number")
 	flag.Parse()
 
-	if number > maxFibNumber {
+	if *number > maxFibNumber {
 		log.Fatal("exceeded max fibonacci number")
 	}
 
-	fmt.Printf("Fibonacci number #%d is %d\n", number, fib.Get(number))
+	fmt.Printf("Fibonacci number #%d is %d\n", *number, fib.Num(*number))
 }
