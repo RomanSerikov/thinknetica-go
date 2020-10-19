@@ -44,7 +44,7 @@ func main() {
 		response := make(map[string]string)
 
 		for url, title := range store {
-			if strings.Contains(url, request) || strings.Contains(strings.ToLower(title), request) {
+			if strings.Contains(strings.ToLower(url), request) || strings.Contains(strings.ToLower(title), request) {
 				response[url] = title
 			}
 		}
