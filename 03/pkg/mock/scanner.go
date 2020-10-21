@@ -1,9 +1,9 @@
 package mock
 
-// Scanner -
+// Scanner - empty struct as receiver to Scan method
 type Scanner struct{}
 
-// Scan -
+// Scan - returns mocked links in format <url> - <title>
 func (s *Scanner) Scan(url string, depth int) (map[string]string, error) {
 	return map[string]string{
 		"https://go.dev/about":     "About - go.dev",
