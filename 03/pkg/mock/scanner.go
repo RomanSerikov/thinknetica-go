@@ -1,6 +1,6 @@
 package mock
 
-// Scanner - empty struct as receiver to Scan method
+// Scanner - empty struct as receiver for Scan method
 type Scanner struct{}
 
 // Scan - returns mocked links in format <url> - <title>

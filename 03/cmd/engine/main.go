@@ -15,16 +15,8 @@ type Scanner interface {
 	Scan(url string, depth int) (data map[string]string, err error)
 }
 
-// Spider - empty struct as receiver to wrap spider.Scan method
-type Spider struct{}
-
-// Scan - wrapper for spider.Scan
-func (s *Spider) Scan(url string, depth int) (map[string]string, error) {
-	return spider.Scan(url, depth)
-}
-
 func main() {
-	scanner := new(Spider)
+	scanner := new(spider.Spider)
 	sites := []string{"https://go.dev"}
 	depth := 2
 
