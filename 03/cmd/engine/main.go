@@ -36,11 +36,10 @@ func main() {
 			return
 		}
 
-		request := strings.ToLower(input)
 		response := make(map[string]string)
 
 		for url, title := range store {
-			if strings.Contains(strings.ToLower(url), request) || strings.Contains(strings.ToLower(title), request) {
+			if strings.Contains(strings.ToLower(url), strings.ToLower(input)) || strings.Contains(strings.ToLower(title), strings.ToLower(input)) {
 				response[url] = title
 			}
 		}
