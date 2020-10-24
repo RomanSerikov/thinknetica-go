@@ -15,19 +15,19 @@ type Indexer struct {
 	Documents []Document
 }
 
-// Document -
-type Document struct {
-	ID    uint
-	URL   string
-	Title string
+// Scanner - interface
+type Scanner interface {
+	Scan(url string, depth int) (data map[string]string, err error)
 }
 
 // Index -
 type Index map[string]map[uint]struct{}
 
-// Scanner - interface
-type Scanner interface {
-	Scan(url string, depth int) (data map[string]string, err error)
+// Document -
+type Document struct {
+	ID    uint
+	URL   string
+	Title string
 }
 
 // New -
