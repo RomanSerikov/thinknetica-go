@@ -48,15 +48,15 @@ func main() {
 			}
 		}
 
+		if len(docIDs) == 0 {
+			fmt.Println("Sorry, nothing found.")
+			continue
+		}
+
 		response := make(map[string]string)
 		for id := range docIDs {
 			doc := indexer.GetDocument(id)
 			response[doc.URL] = doc.Title
-		}
-
-		if len(response) == 0 {
-			fmt.Println("Sorry, nothing found.")
-			continue
 		}
 
 		fmt.Println("Results:")
