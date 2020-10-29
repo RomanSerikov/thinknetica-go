@@ -5,20 +5,28 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/romanserikov/thinknetica-go/04/pkg/index"
+	"github.com/romanserikov/thinknetica-go/04/pkg/spider"
 )
 
 const exit = "exit"
 
+// Scanner - interface
+type Scanner interface {
+	Scan(url string, depth int) (data map[string]string, err error)
+}
+
 func main() {
+	crawler := spider.New()
 	sites := []string{"https://go.dev"}
 	depth := 2
 
-	indexer := index.New()
-	if err := indexer.Run(sites, depth); err != nil {
-		log.Println("error occured while running indexer", err)
+	searchIndex, documents, err := buildSearchIndex(crawler, sites, depth)
+	if err != nil {
+		log.Println("error occured while building search index", err)
 		return
 	}
 
@@ -35,15 +43,14 @@ func main() {
 		}
 
 		docIDs := make(map[uint]struct{})
-
 		words := strings.Split(input, " ")
 		for _, word := range words {
-			ids, ok := indexer.Index[strings.ToLower(word)]
+			documentIDs, ok := searchIndex[strings.ToLower(word)]
 			if !ok {
 				continue
 			}
 
-			for id := range ids {
+			for id := range documentIDs {
 				docIDs[id] = struct{}{}
 			}
 		}
@@ -55,7 +62,8 @@ func main() {
 
 		response := make(map[string]string)
 		for id := range docIDs {
-			doc := indexer.GetDocument(id)
+			idx := sort.Search(len(documents), func(j int) bool { return documents[j].ID >= id })
+			doc := documents[idx]
 			response[doc.URL] = doc.Title
 		}
 
@@ -64,4 +72,21 @@ func main() {
 			fmt.Printf("  * %s - %s\n", url, title)
 		}
 	}
+}
+
+// buildSearchIndex - builds search index for sites and returns this index and sorted documents with ids
+func buildSearchIndex(scanner Scanner, sites []string, depth int) (index.Index, []index.Document, error) {
+	i := index.New()
+
+	for _, site := range sites {
+		fmt.Printf("scanning %s...\n", site)
+		docs, err := scanner.Scan(site, depth)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		i.BuildIndex(docs)
+	}
+
+	return i.Index, i.Documents, nil
 }

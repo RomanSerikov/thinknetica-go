@@ -4,105 +4,74 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-
-	"github.com/romanserikov/thinknetica-go/04/pkg/spider"
 )
 
-// Indexer -
-type Indexer struct {
-	Scanner
-	Index
+// Service - stores search index, documents and documentID counter
+type Service struct {
+	Index     Index
 	Documents []Document
+	LastID    uint
 }
 
-// Scanner - interface
-type Scanner interface {
-	Scan(url string, depth int) (data map[string]string, err error)
-}
-
-// Index -
+// Index - Inverted index for fast document search
+// Store unique document ids for each word
 type Index map[string]map[uint]struct{}
 
-// Document -
+// Document - stores information about web page
 type Document struct {
 	ID    uint
 	URL   string
 	Title string
 }
 
-// New -
-func New() *Indexer {
-	return &Indexer{
-		Scanner: new(spider.Spider),
-		Index:   make(Index),
+// New - creates new index Service
+func New() *Service {
+	return &Service{
+		Index:  make(Index),
+		LastID: 0,
 	}
 }
 
-// Run -
-func (i *Indexer) Run(sites []string, depth int) error {
-	if err := i.buildDocuments(sites, depth); err != nil {
-		return fmt.Errorf("error during building documents: %w", err)
-	}
-
-	return i.buildIndex()
+// getID - returns id for new document and increment LastID counter
+func (s *Service) getID() uint {
+	id := s.LastID
+	s.LastID++
+	return id
 }
 
-func (i *Indexer) buildDocuments(sites []string, depth int) error {
-	var documents []Document
-	var id uint
-
-	for _, site := range sites {
-		fmt.Printf("Scanning %s\n", site)
-
-		data, err := i.Scan(site, depth)
-		if err != nil {
-			return fmt.Errorf("error during scanning %s: %w", site, err)
-		}
-
-		for url, title := range data {
-			documents = append(documents, Document{
-				ID:    id,
-				URL:   url,
-				Title: title,
-			})
-
-			id++
-		}
+// BuildIndex - takes raw documents from spider package and build index on it.
+// Stores Index and Documents in Service object
+func (s *Service) BuildIndex(documents map[string]string) {
+	if len(documents) == 0 {
+		fmt.Println("no documents for indexing")
+		return
 	}
 
-	sort.Slice(documents, func(i, j int) bool {
-		return documents[i].ID < documents[j].ID
-	})
-
-	i.Documents = documents
-
-	return nil
-}
-
-func (i *Indexer) buildIndex() error {
-	if len(i.Documents) == 0 {
-		return fmt.Errorf("no documents for indexing")
-	}
-
-	for _, doc := range i.Documents {
-		words := strings.Split(doc.Title, " ")
+	var newDocuments []Document
+	for url, title := range documents {
+		id := s.getID()
+		words := strings.Split(title, " ")
 
 		for _, w := range words {
 			word := strings.ToLower(w)
 
-			if _, ok := i.Index[word]; !ok {
-				i.Index[word] = make(map[uint]struct{})
+			if _, ok := s.Index[word]; !ok {
+				s.Index[word] = make(map[uint]struct{})
 			}
 
-			i.Index[word][doc.ID] = struct{}{}
+			s.Index[word][id] = struct{}{}
 		}
+
+		newDocuments = append(newDocuments, Document{
+			ID:    id,
+			URL:   url,
+			Title: title,
+		})
 	}
 
-	return nil
-}
+	s.Documents = append(s.Documents, newDocuments...)
 
-// GetDocument -
-func (i *Indexer) GetDocument(id uint) Document {
-	idx := sort.Search(len(i.Documents), func(j int) bool { return i.Documents[j].ID >= id })
-	return i.Documents[idx]
+	sort.Slice(s.Documents, func(i, j int) bool {
+		return s.Documents[i].ID < s.Documents[j].ID
+	})
 }

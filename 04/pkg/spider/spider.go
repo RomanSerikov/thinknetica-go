@@ -1,6 +1,5 @@
 // Package spider реализует сканер содержимого веб-сайтов.
 // Пакет позволяет получить список ссылок и заголовков страниц внутри веб-сайта по его URL.
-// https://github.com/hardcode-dev/go-core/blob/master/websearch/crawler/pkg/spider/spider.go
 package spider
 
 import (
@@ -10,13 +9,26 @@ import (
 	"golang.org/x/net/html"
 )
 
-// Spider -
-type Spider struct{}
+// Service - служба поискового робота.
+type Service struct{}
+
+// Document - документ, веб-страница, полученная поисковым роботом.
+type Document struct {
+	URL   string
+	Title string
+	Body  string
+}
+
+// New - констрктор службы поискового робота.
+func New() *Service {
+	s := Service{}
+	return &s
+}
 
 // Scan осуществляет рекурсивный обход ссылок сайта, указанного в URL,
 // с учётом глубины перехода по ссылкам, переданной в depth.
-func (s *Spider) Scan(url string, depth int) (data map[string]string, err error) {
-	data = make(map[string]string)
+func (s *Service) Scan(url string, depth int) (map[string]string, error) {
+	data := make(map[string]string)
 
 	parse(url, url, depth, data)
 
@@ -45,8 +57,18 @@ func parse(url, baseurl string, depth int, data map[string]string) error {
 
 	links := pageLinks(nil, page)
 	for _, link := range links {
-		if data[link] == "" && strings.HasPrefix(link, baseurl) {
+		// ссылка уже отсканирована
+		if data[link] != "" {
+			continue
+		}
+		// ссылка содержит базовый url полностью
+		if strings.HasPrefix(link, baseurl) {
 			parse(link, baseurl, depth-1, data)
+		}
+		// относительная ссылка
+		if strings.HasPrefix(link, "/") && len(link) > 1 {
+			next := baseurl + link[1:]
+			parse(next, baseurl, depth-1, data)
 		}
 	}
 
@@ -56,7 +78,7 @@ func parse(url, baseurl string, depth int, data map[string]string) error {
 // pageTitle осуществляет рекурсивный обход HTML-страницы и возвращает значение элемента <tittle>.
 func pageTitle(n *html.Node) string {
 	var title string
-	if n.Type == html.ElementNode && n.Data == "title" {
+	if n.Type == html.ElementNode && n.Data == "title" && n.FirstChild != nil {
 		return n.FirstChild.Data
 	}
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
