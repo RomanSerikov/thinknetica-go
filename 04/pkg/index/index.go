@@ -27,8 +27,7 @@ type Document struct {
 // New - creates new index Service
 func New() *Service {
 	return &Service{
-		Index:  make(Index),
-		LastID: 0,
+		Index: make(Index),
 	}
 }
 
@@ -47,7 +46,6 @@ func (s *Service) BuildIndex(documents map[string]string) {
 		return
 	}
 
-	var newDocuments []Document
 	for url, title := range documents {
 		id := s.getID()
 		words := strings.Split(title, " ")
@@ -62,14 +60,12 @@ func (s *Service) BuildIndex(documents map[string]string) {
 			s.Index[word][id] = struct{}{}
 		}
 
-		newDocuments = append(newDocuments, Document{
+		s.Documents = append(s.Documents, Document{
 			ID:    id,
 			URL:   url,
 			Title: title,
 		})
 	}
-
-	s.Documents = append(s.Documents, newDocuments...)
 
 	sort.Slice(s.Documents, func(i, j int) bool {
 		return s.Documents[i].ID < s.Documents[j].ID
