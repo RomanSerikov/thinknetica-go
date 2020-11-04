@@ -1,4 +1,4 @@
-package index
+package bst
 
 // Tree - binary search tree
 // based on https://github.com/hardcode-dev/go-core/blob/master/5-ds/bst/bst.go

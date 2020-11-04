@@ -3,12 +3,14 @@ package index
 import (
 	"fmt"
 	"strings"
+
+	"github.com/romanserikov/thinknetica-go/05/pkg/bst"
 )
 
 // Service - stores search index, documents and documentID counter
 type Service struct {
 	Index     Index
-	Documents *Tree
+	Documents *bst.Tree
 	LastID    uint
 }
 
@@ -20,7 +22,7 @@ type Index map[string]map[uint]struct{}
 func New() *Service {
 	return &Service{
 		Index:     make(Index),
-		Documents: new(Tree),
+		Documents: new(bst.Tree),
 	}
 }
 
@@ -33,7 +35,7 @@ func (s *Service) BuildIndex(documents map[string]string) {
 	}
 
 	for url, title := range documents {
-		id := s.Documents.Insert(&Document{
+		id := s.Documents.Insert(&bst.Document{
 			URL:   url,
 			Title: title,
 		})
