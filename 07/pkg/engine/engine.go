@@ -14,37 +14,27 @@ import (
 
 // Service - struct for search engine
 type Service struct {
-	indexer   *index.Service
-	crawler   crawler.Scanner
-	cacheFile string
+	indexer *index.Service
+	crawler crawler.Scanner
+	cache   string
 }
 
 // New - creates new engine service
-func New(crawler crawler.Scanner, cachefile string) *Service {
+func New(crawler crawler.Scanner, cache string) *Service {
 	return &Service{
-		crawler:   crawler,
-		cacheFile: cachefile,
+		crawler: crawler,
+		cache:   cache,
 	}
 }
 
-// Start - starts the search engine
-func (s *Service) Start(sites []string, depth int) error {
-	if fileExists(s.cacheFile) {
-		if err := s.LoadCache(); err != nil {
-			return err
-		}
-
-		go s.Sync(sites, depth)
-		return nil
-	}
-
-	s.Sync(sites, depth)
-	return nil
+// HasCache - checks if cache file exists
+func (s *Service) HasCache() bool {
+	return fileExists(s.cache)
 }
 
 // LoadCache - loads cache from local file
 func (s *Service) LoadCache() error {
-	file, err := ioutil.ReadFile(s.cacheFile)
+	file, err := ioutil.ReadFile(s.cache)
 	if err != nil {
 		return err
 	}
@@ -83,7 +73,7 @@ func (s *Service) Sync(sites []string, depth int) {
 		})
 	}
 
-	saveDocuments(s.cacheFile, docs)
+	saveDocuments(s.cache, docs)
 
 	ind := index.New()
 	ind.BuildIndex(data)
