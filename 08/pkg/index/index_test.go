@@ -9,10 +9,10 @@ import (
 
 func TestService_Add(t *testing.T) {
 	tests := []struct {
-		name  string
-		doc   storage.Document
-		token string
-		ids   []uint
+		name    string
+		doc     storage.Document
+		token   string
+		wantIDs []uint
 	}{
 		{
 			name: "test 1",
@@ -21,8 +21,8 @@ func TestService_Add(t *testing.T) {
 				URL:   "http://go.dev",
 				Title: "About go",
 			},
-			token: "about",
-			ids:   []uint{1},
+			token:   "about",
+			wantIDs: []uint{1},
 		},
 	}
 
@@ -36,8 +36,8 @@ func TestService_Add(t *testing.T) {
 				ids = append(ids, id)
 			}
 
-			if !reflect.DeepEqual(ids, tt.ids) {
-				t.Errorf("got %v, want %v", ids, tt.ids)
+			if !reflect.DeepEqual(ids, tt.wantIDs) {
+				t.Errorf("got %v, want %v", ids, tt.wantIDs)
 			}
 		})
 	}

@@ -1,4 +1,4 @@
-package mock
+package spiderbot
 
 // Service - empty struct as receiver for Scan method
 type Service struct{}
