@@ -1,7 +1,6 @@
 package slice
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/romanserikov/thinknetica-go/09/pkg/storage"
@@ -14,15 +13,15 @@ func BenchmarkInsert(b *testing.B) {
 	}{
 		{
 			name: "1 document",
-			docs: generateDocuments(1),
+			docs: storage.GenerateTestDocuments(1),
 		},
 		{
 			name: "10 documents",
-			docs: generateDocuments(10),
+			docs: storage.GenerateTestDocuments(10),
 		},
 		{
 			name: "100 documents",
-			docs: generateDocuments(100),
+			docs: storage.GenerateTestDocuments(100),
 		},
 	}
 
@@ -53,15 +52,15 @@ func BenchmarkSearch(b *testing.B) {
 	}{
 		{
 			name: "bst 1 document",
-			docs: generateDocuments(1),
+			docs: storage.GenerateTestDocuments(1),
 		},
 		{
 			name: "bst 10 documents",
-			docs: generateDocuments(10),
+			docs: storage.GenerateTestDocuments(10),
 		},
 		{
 			name: "bst 100 documents",
-			docs: generateDocuments(100),
+			docs: storage.GenerateTestDocuments(100),
 		},
 	}
 
@@ -87,16 +86,3 @@ func BenchmarkSearch(b *testing.B) {
 // BenchmarkSearch/bst_100_documents-4      	31717461	        37.2 ns/op	       0 B/op	       0 allocs/op
 // PASS
 // ok  	github.com/romanserikov/thinknetica-go/09/pkg/storage/slice	3.689s
-
-func generateDocuments(count int) []storage.Document {
-	var docs []storage.Document
-
-	for i := 0; i < count; i++ {
-		docs = append(docs, storage.Document{
-			URL:   "http://go.dev",
-			Title: fmt.Sprintf("About go %d", i),
-		})
-	}
-
-	return docs
-}
