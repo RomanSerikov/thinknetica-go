@@ -14,6 +14,7 @@ func TestSearch(t *testing.T) {
 		docs          []storage.Document
 		searchRequest string
 		want          map[string]string
+		wantLen       int
 	}{
 		{
 			name: "one doc, one response",
@@ -27,6 +28,7 @@ func TestSearch(t *testing.T) {
 			want: map[string]string{
 				"http://go.dev": "About go",
 			},
+			wantLen: 1,
 		},
 		{
 			name: "two docs, one response",
@@ -44,6 +46,7 @@ func TestSearch(t *testing.T) {
 			want: map[string]string{
 				"http://go.dev": "About go",
 			},
+			wantLen: 1,
 		},
 		{
 			name: "two docs, two responses",
@@ -62,6 +65,7 @@ func TestSearch(t *testing.T) {
 				"http://go.dev":       "About go",
 				"http://go.dev/about": "About me",
 			},
+			wantLen: 2,
 		},
 		{
 			name: "two docs, zero responses",
@@ -77,6 +81,7 @@ func TestSearch(t *testing.T) {
 			},
 			searchRequest: "zero",
 			want:          map[string]string{},
+			wantLen:       0,
 		},
 	}
 
@@ -93,8 +98,8 @@ func TestSearch(t *testing.T) {
 			service := New(ind, strg)
 			response := service.Search(tt.searchRequest)
 
-			if got := len(response); got != len(tt.want) {
-				t.Errorf("got %v, want %v", got, len(tt.want))
+			if got := len(response); got != tt.wantLen {
+				t.Errorf("got %v, want %v", got, tt.wantLen)
 			}
 
 			for url, wantTitle := range tt.want {
