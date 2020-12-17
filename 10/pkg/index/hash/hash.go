@@ -9,7 +9,7 @@ import (
 )
 
 // PromQL: search_index_length
-var searchIndexLength = promauto.NewCounter(prometheus.CounterOpts{
+var searchIndexLength = promauto.NewGauge(prometheus.GaugeOpts{
 	Name: "search_index_length",
 	Help: "Длина индекса.",
 })
