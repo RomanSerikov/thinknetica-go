@@ -1,8 +1,5 @@
 package oldest
 
-// Person - interface for user with age
-type Person interface{}
-
 // Employee - employee user
 type Employee struct {
 	name string
@@ -16,9 +13,9 @@ type Customer struct {
 }
 
 // Oldest - returns the oldest person
-func Oldest(people ...Person) Person {
+func Oldest(people ...interface{}) interface{} {
 	var maxAge int
-	var oldest Person
+	var oldest interface{}
 
 	for _, person := range people {
 		if p, ok := person.(Employee); ok {

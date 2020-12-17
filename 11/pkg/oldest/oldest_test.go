@@ -8,12 +8,12 @@ import (
 func TestOldest(t *testing.T) {
 	tests := []struct {
 		name   string
-		people []Person
-		want   Person
+		people []interface{}
+		want   interface{}
 	}{
 		{
 			name: "only employees",
-			people: []Person{
+			people: []interface{}{
 				Employee{
 					name: "Alice",
 					age:  17,
@@ -30,7 +30,7 @@ func TestOldest(t *testing.T) {
 		},
 		{
 			name: "only customers",
-			people: []Person{
+			people: []interface{}{
 				Customer{
 					age:     42,
 					premium: false,
@@ -47,7 +47,7 @@ func TestOldest(t *testing.T) {
 		},
 		{
 			name: "employees and customers",
-			people: []Person{
+			people: []interface{}{
 				Employee{
 					name: "Alice",
 					age:  17,
