@@ -1,6 +1,7 @@
 package bst
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/romanserikov/thinknetica-go/09/pkg/storage"
@@ -13,15 +14,15 @@ func BenchmarkInsert(b *testing.B) {
 	}{
 		{
 			name: "1 document",
-			docs: storage.GenerateTestDocuments(1),
+			docs: generateTestDocuments(1),
 		},
 		{
 			name: "10 documents",
-			docs: storage.GenerateTestDocuments(10),
+			docs: generateTestDocuments(10),
 		},
 		{
 			name: "100 documents",
-			docs: storage.GenerateTestDocuments(100),
+			docs: generateTestDocuments(100),
 		},
 	}
 
@@ -52,27 +53,27 @@ func BenchmarkSearch(b *testing.B) {
 	}{
 		{
 			name: "1 document",
-			docs: storage.GenerateTestDocuments(1),
+			docs: generateTestDocuments(1),
 		},
 		{
 			name: "10 documents",
-			docs: storage.GenerateTestDocuments(10),
+			docs: generateTestDocuments(10),
 		},
 		{
 			name: "100 documents",
-			docs: storage.GenerateTestDocuments(100),
+			docs: generateTestDocuments(100),
 		},
 	}
 
 	for _, tt := range tests {
+		store := New()
+
+		var id uint
+		for _, doc := range tt.docs {
+			id = store.Insert(doc)
+		}
+
 		b.Run(tt.name, func(b *testing.B) {
-			store := New()
-
-			var id uint
-			for _, doc := range tt.docs {
-				id = store.Insert(doc)
-			}
-
 			for i := 0; i < b.N; i++ {
 				doc := store.Search(id)
 				_ = doc
@@ -86,3 +87,17 @@ func BenchmarkSearch(b *testing.B) {
 // BenchmarkSearch/100_documents-4      	 2265498	        546 ns/op	       0 B/op	       0 allocs/op
 // PASS
 // ok  	github.com/romanserikov/thinknetica-go/09/pkg/storage/bst	4.552s
+
+// generateTestDocuments - generates documents for benchmark tests
+func generateTestDocuments(count int) []storage.Document {
+	var docs []storage.Document
+
+	for i := 0; i < count; i++ {
+		docs = append(docs, storage.Document{
+			URL:   "http://go.dev",
+			Title: fmt.Sprintf("About go %d", i),
+		})
+	}
+
+	return docs
+}
