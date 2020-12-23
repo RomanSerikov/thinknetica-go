@@ -26,13 +26,10 @@ func New() *Service {
 }
 
 // BulkScan - scans multiple sites simultaneously
-func (s *Service) BulkScan(sites []string, depth int) (map[string]string, error) {
-	jobs := make(chan string, len(sites))
-	results := make(chan map[string]string, len(sites))
+func (s *Service) BulkScan(sites []string, depth int) (<-chan map[string]string, <-chan error) {
+	jobs := make(chan string)
+	results := make(chan map[string]string)
 	errors := make(chan error)
-
-	defer close(results)
-	defer close(errors)
 
 	for i := 0; i < maxWorkers; i++ {
 		s.wg.Add(1)
@@ -44,21 +41,13 @@ func (s *Service) BulkScan(sites []string, depth int) (map[string]string, error)
 	}
 	close(jobs)
 
-	s.wg.Wait()
+	go func() {
+		s.wg.Wait()
+		close(results)
+		close(errors)
+	}()
 
-	ret := make(map[string]string)
-	for i := 0; i < len(sites); i++ {
-		select {
-		case err := <-errors:
-			return nil, err
-		case res := <-results:
-			for url, title := range res {
-				ret[url] = title
-			}
-		}
-	}
-
-	return ret, nil
+	return results, errors
 }
 
 // worker - gets jobs from channel and start Scan
